@@ -1,110 +1,66 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ohňostroj</title>
+    <title>Snowfall Effect</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
-            background-color: #000;
+            padding: 0;
+            background: #1a1a1a; /* Nastav barvu pozadí */
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden; /* Skryje scroll */
         }
-        canvas {
-            display: block;
+
+        #snowflakes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
         }
     </style>
 </head>
 <body>
-    <canvas id="fireworks"></canvas>
+    <div id="snowflakes"></div>
+
     <script>
-        const canvas = document.getElementById('fireworks');
-        const ctx = canvas.getContext('2d');
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.classList.add('snowflake');
+            const size = Math.random() * 10 + 5 + 'px';
+            snowflake.style.width = size;
+            snowflake.style.height = size;
+            snowflake.style.left = Math.random() * window.innerWidth + 'px';
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            document.getElementById('snowflakes').appendChild(snowflake);
 
-        // Přizpůsobení velikosti plátna
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
-        // Generování náhodných čísel
-        function random(min, max) {
-            return Math.random() * (max - min) + min;
+            setTimeout(() => {
+                snowflake.remove();
+            }, 5000);
         }
 
-        // Ohňostrojové částice
-        class Particle {
-            constructor(x, y, color) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.radius = random(2, 4);
-                this.alpha = 1;
-                this.speed = random(2, 5);
-                this.angle = random(0, Math.PI * 2);
-            }
-
-            update() {
-                this.x += Math.cos(this.angle) * this.speed;
-                this.y += Math.sin(this.angle) * this.speed;
-                this.alpha -= 0.02;
-            }
-
-            draw() {
-                ctx.globalAlpha = this.alpha;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-        }
-
-        class Firework {
-            constructor() {
-                this.x = random(100, canvas.width - 100);
-                this.y = random(100, canvas.height - 100);
-                this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
-                this.particles = [];
-
-                for (let i = 0; i < 50; i++) {
-                    this.particles.push(new Particle(this.x, this.y, this.color));
-                }
-            }
-
-            update() {
-                this.particles.forEach(particle => particle.update());
-                this.particles = this.particles.filter(particle => particle.alpha > 0);
-            }
-
-            draw() {
-                this.particles.forEach(particle => particle.draw());
-            }
-        }
-
-        let fireworks = [];
-
-        function animate() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (Math.random() < 0.05) {
-                fireworks.push(new Firework());
-            }
-
-            fireworks.forEach(firework => {
-                firework.update();
-                firework.draw();
-            });
-
-            fireworks = fireworks.filter(firework => firework.particles.length > 0);
-
-            requestAnimationFrame(animate);
-        }
-
-        animate();
+        setInterval(createSnowflake, 100);
     </script>
 </body>
 </html>
